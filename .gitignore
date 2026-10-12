@@ -1,0 +1,5 @@
+# Photos straight from the phone carry GPS and other metadata: not in git. Add a photo only
+# after stripping it (exiftool -all= photo.jpg) and deciding it is public.
+photos-*/
+/robot3d.bin
+/out/
