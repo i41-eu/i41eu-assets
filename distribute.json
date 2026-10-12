@@ -7,7 +7,7 @@
   "q41eu-raw": "../q41eu-raw",
   "q41eu-focus": "../q41eu-focus",
   "i41eu-manager": "../i41eu-manager",
-  "firmware": "../i41eu-embody",
+  "firmware": "../i41eu-StackChan",
   "s3d": "../i41eu-s3d"
  },
  "copies": [
