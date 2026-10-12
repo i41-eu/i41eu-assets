@@ -64,7 +64,7 @@ screen, a pose) refreshes them everywhere:
 5. `go run ./cmd/robot3d-distribute -check` lists what is out of date; without `-check` it writes
    those files. It only writes: commit and push in each repository by its own rules.
 
-Stack-chan was created by Shinya Ishikawa and the Stack-chan community ([github.com/stack-chan/stack-chan](https://github.com/stack-chan/stack-chan)); this project is independent of it and of M5Stack. This project is independent of both.
+Stack-chan was created by Shinya Ishikawa and the Stack-chan community ([github.com/stack-chan/stack-chan](https://github.com/stack-chan/stack-chan)); this project is independent of it and of M5Stack.
 
 ## License
 
