@@ -1,6 +1,10 @@
 package robot3d
 
-import "testing"
+import (
+	"image/color"
+	"math"
+	"testing"
+)
 
 // Surface gives the renderer's details: the glass at the screen, the power button and USB-C on
 // the CoreS3's right, StackChan's board seen through the open back; the plain shell elsewhere.
@@ -12,11 +16,21 @@ func TestSurface(t *testing.T) {
 	}
 	right := V3{-1, 0, 0}
 	for name, p := range map[string]V3{
-		"power button": coreCentre.Add(V3{-27, 14, 0.4}),
-		"USB-C":        coreCentre.Add(V3{-27, -0.7, 0.4}),
+		"power button":      coreCentre.Add(V3{-27, 12.9, -0.6}),
+		"power button ring": coreCentre.Add(V3{-27, 12.9, 3.9}),
+		"power sign":        coreCentre.Add(V3{-27, 19.2 + 0.6, -0.2 + 0.6}),
+		"USB-C":             coreCentre.Add(V3{-27, 0, -0.4}),
+		"Grove port":        coreCentre.Add(V3{-27, -14.1, -1.2}),
 	} {
 		if c, _ := Surface("core", p, right); c == shell {
 			t.Errorf("%s: the plain shell", name)
+		}
+	}
+	// M5Stack's drawing: the button 9.9 wide and 7.5 high: below it, behind it and in front of
+	// it the shell (the old one was 6 x 5.2, 1 mm higher and further forward).
+	for _, d := range []V3{{0, 12.9 - 4.2, -0.6}, {0, 12.9, -0.6 - 5.4}, {0, 12.9, -0.6 + 5.4}, {0, 12.9 + 4.2, -0.6}} {
+		if c, _ := Surface("core", coreCentre.Add(V3{-27, d.Y, d.Z}), right); c != shell {
+			t.Errorf("next to the power button at y %+.1f z %+.1f: %v, want the shell", d.Y, d.Z, c)
 		}
 	}
 	back := coreCentre.Add(V3{0, 0, -coreD/2 - coreOverLip})
@@ -28,6 +42,59 @@ func TestSurface(t *testing.T) {
 	}
 	if c, glass := Surface("core", coreCentre.Add(V3{-27, -20, 0.4}), right); glass || c != shell {
 		t.Errorf("the right side below the ports: %v %v, want the shell %v", c, glass, shell)
+	}
+}
+
+// The body's back as on M5Stack's product photos: the back cover mid grey between the light grey
+// servo body and the dark stand, two silver screws and the red LED in the light band at its
+// foot, the battery blue through the cover's cutout, the stand's USB-C dark in a metal shell.
+func TestBack(t *testing.T) {
+	back := V3{0, 0, -1}
+	at := func(part string, p V3) color.RGBA {
+		c, _ := Surface(part, p, back)
+		return c
+	}
+	lum := func(c color.RGBA) int { return (299*int(c.R) + 587*int(c.G) + 114*int(c.B)) / 1000 }
+	band, cover, stand := at("servo", V3{6, screwY, -23.3}), at("servo-cover", V3{0, 25, -22.4}), at("plate", V3{12, 4, -23.6})
+	if lum(cover) > lum(band)-60 || lum(cover) < lum(stand)-30 || lum(cover) > lum(stand)+30 {
+		t.Errorf("the back cover %v: not mid grey between the band %v and the stand %v", cover, band, stand)
+	}
+	if c := at("servo", V3{backLedX, backLedY, -23.15}); c.R < 120 || int(c.R) < 2*int(c.G) {
+		t.Errorf("the LED between the screws: %v, not red", c)
+	}
+	for _, sx := range []float64{-screwX, screwX} {
+		if c := at("servo-cover", V3{sx + 1, screwY, -22}); lum(c) < lum(cover)+40 || c.R > c.B {
+			t.Errorf("the screw at x %+.1f: %v, not silver", sx, c)
+		}
+	}
+	if c := at("battery", V3{0, batteryY0 + 1, batteryZ0}); int(c.B) < int(c.R)+80 {
+		t.Errorf("the battery: %v, not blue", c)
+	}
+	if c := at("plate", V3{standUsbX + 3.8, standUsbY, -23.3}); lum(c) > 40 {
+		t.Errorf("the stand's USB-C: %v, not dark", c)
+	}
+}
+
+// The servo body stands on the plate's ring round the turntable, not in it, and the head
+// pitches about the main body's boss (M5Stack's drawing of the back: the screws, the LED window
+// and the horn 3 mm higher than with the servo body's foot on the plate's 8 mm top).
+func TestServoOnPlate(t *testing.T) {
+	foot, ring := math.Inf(1), math.Inf(-1)
+	for _, p := range Parts() {
+		for _, v := range p.Positions {
+			switch p.Name {
+			case "servo", "servo-cover":
+				foot = math.Min(foot, v.Y)
+			case "plate":
+				ring = math.Max(ring, v.Y)
+			}
+		}
+	}
+	if foot < ring {
+		t.Errorf("the servo body's foot at y %.2f, in the plate (up to %.2f)", foot, ring)
+	}
+	if math.Abs(pivot.Y-43.5) > 0.05 {
+		t.Errorf("the pitch axis at y %.2f, the main body's boss at 43.5", pivot.Y)
 	}
 }
 

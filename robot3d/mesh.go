@@ -23,7 +23,10 @@ const (
 	screenH     = 30.6
 	screenCY    = 1.0 // the screen's centre above the CoreS3's centre
 	rim         = 1.4 // the shell's rim around the glass front
-	servoBottom = 8.5 // the servo body stands on the plate (8 high)
+	// The servo body's foot rests on the plate's ring round the turntable (its top at 11.1; the
+	// plate itself is 8 high): M5Stack's drawing and product photos of the back put its screws,
+	// its LED window and its back cover there, and its horn at the main body's pitch boss (y 43.5).
+	servoBottom = 11.2
 	pitchAxisY  = servoBottom + 32.3
 )
 
@@ -55,14 +58,28 @@ const (
 	matLedChip    // its six LEDs (WS2812C, 2 x 2 mm), one under each sixth of the light guide
 	matTopBoard   // the head's top behind the CoreS3: the touch pads, the IR LED and receiver, ports B and C
 	matBaseCover  // the base's bottom cover (M5Stack's BaseCover.stl): the base's underside is flat
+	matBattery    // the 550 mAh battery behind the servo body's back cover (blue)
 )
 
 // The pitch servo, drawn (M5Stack's files leave the servos out): the pocket the servo body
 // leaves on the robot's left, round the pitch axis, between its side and the main body's boss.
 const (
 	pitchServoX0, pitchServoX1 = 11.0, 22.0
-	pitchServoY0, pitchServoY1 = 36.0, 47.5
+	pitchServoY0, pitchServoY1 = servoBottom + 27.5, servoBottom + 39.0
 	pitchServoZ0, pitchServoZ1 = -17.0, 10.0
+)
+
+// The back of the servo body (M5Stack's drawing and product photos of the back). The battery,
+// drawn (M5Stack's files leave it out), fills the compartment behind the back cover; the cover's
+// cutout above its screws shows its blue wrap (M5Stack's annotated photo: 550 mAh BATTERY).
+const (
+	batteryX             = 14.6
+	batteryY0, batteryY1 = servoBottom + 6.5, servoBottom + 22.7
+	batteryZ0, batteryZ1 = -19.2, -10.3
+	screwX, screwY       = 10.6, servoBottom + 3.15 // the back cover's two screws (x ±), in the white band
+	backLedX, backLedY   = 0.25, servoBottom + 3.2  // the red LED between them, in its window
+	standUsbX, standUsbY = 0.6, 7.55                // the stand's USB-C, in the opening M5Stack's base leaves on its back
+	standUsbW, standUsbH = 8.9, 3.2
 )
 
 // The LED bars' slot (one each side, at the top).
@@ -126,6 +143,12 @@ func mesh() []tri {
 		add(roundedBoxBack(V3{27, 27, (coreD + coreOverLip) / 2}, coreR, coreBackR, 6, partCore, matCore), coreCentre.Add(V3{0, 0, -coreOverLip / 2}))
 		add(roundedBox(V3{(pitchServoX1 - pitchServoX0) / 2, (pitchServoY1 - pitchServoY0) / 2, (pitchServoZ1 - pitchServoZ0) / 2}, 0.8, 2, partServo, matPitchServo),
 			V3{(pitchServoX0 + pitchServoX1) / 2, (pitchServoY0 + pitchServoY1) / 2, (pitchServoZ0 + pitchServoZ1) / 2})
+		add(roundedBox(V3{batteryX, (batteryY1 - batteryY0) / 2, (batteryZ1 - batteryZ0) / 2}, 0.8, 2, partServo, matBattery),
+			V3{0, (batteryY0 + batteryY1) / 2, (batteryZ0 + batteryZ1) / 2})
+		// The red LED in the servo body's back window and the USB-C receptacle in the stand's back
+		// opening (M5Stack's files leave both open through): shaded as their part's details.
+		add(roundedBox(V3{0.75, 1.5, 0.75}, 0.2, 1, partServo, matServo), V3{backLedX, backLedY, -22.4})
+		add(roundedBox(V3{standUsbW / 2, standUsbH / 2, 3.5}, 1.4, 2, partPlate, matPlate), V3{standUsbX, standUsbY, -23.3 + 3.5})
 		for _, sx := range []float64{-1, 1} {
 			add(roundedBox(V3{(barX1 - barX0) / 2, (barY1 - barY0) / 2, (barZ1 - barZ0) / 2}, 2.0, 3, partBody, matBar),
 				V3{sx * (barX0 + barX1) / 2, (barY0 + barY1) / 2, (barZ0 + barZ1) / 2})

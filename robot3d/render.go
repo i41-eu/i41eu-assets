@@ -162,6 +162,8 @@ func shadeSample(sc *scene, t tri, w [3]vert, b [3]float64, eye V3) rgb {
 		sf = sc.core(lp, ln)
 	case partBody:
 		sf = sc.body(lp, ln, t.mat)
+	case partServo, partPlate:
+		sf = lower(lp, ln, t.mat)
 	default:
 		sf = material(t.mat)
 	}

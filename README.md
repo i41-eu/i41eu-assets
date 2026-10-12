@@ -41,13 +41,17 @@ The model: M5Stack's structure files for the StackChan (`robot3d/m5stack/`, MIT,
 [m5stack/M5_Hardware](https://github.com/m5stack/M5_Hardware/tree/master/Products/K151_StackChan/Structures)):
 the main body (the head behind the CoreS3, with its holes and LED slots), the base, the servo body
 with the turntable, its back cover and its top cover (inside the head), placed by the dimensions in M5Stack's drawing
-([docs](https://docs.m5stack.com/en/StackChan): 54 x 70.5 x 61.5 mm, the plate 8 high). Drawn
-here: the CoreS3 (54 x 54 x 15.5) with the screen (40.8 x 30.6) in its black glass front, the red
-ring and the sensors' dots, vents on the left, power button, USB-C and Grove port on the right; the
-light guide bars of the LEDs, the labels (without text), the upper back's panel (down to 29 mm
-below the top) and the black pitch servo in the servo body's pocket on the left (M5Stack's files
-leave the servos out; sized by the pocket and a photo of the back). The head
-pitches about the servo's horn, 24 mm above its bottom, right over the yaw axis.
+([docs](https://docs.m5stack.com/en/StackChan): 54 x 70.5 x 61.5 mm, the plate 8 high; the servo
+body's foot on the plate's ring round the turntable). Drawn here: the CoreS3 (54 x 54 x 15.5) with
+the screen (40.8 x 30.6) in its black glass front, the red ring and the sensors' dots, vents on the
+left, the power button (in its black ring, the power sign above it), USB-C and Grove port on the
+right; the light guide bars of the LEDs (pale teal when off), the labels (without text), the upper
+back's panel (down to 29 mm below the top) and the black pitch servo in the servo body's pocket on
+the left (M5Stack's files leave the servos out; sized by the pocket and a photo of the back); at
+the body's back the mid grey cover, the blue battery through its cutout, the two screws and the red
+LED in the band below it, and the stand's USB-C (M5Stack's drawing and product photos of the back).
+The head pitches about the servo's horn at the main body's boss, 27 mm above its bottom, right over
+the yaw axis.
 
 ## The pictures in the other repositories
 

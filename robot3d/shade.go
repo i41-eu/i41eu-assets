@@ -22,7 +22,7 @@ var (
 	colVent     = hex(0x55595e)
 	colPortDark = hex(0x1c1d20)
 	colServo    = hex(0x50555b) // the open back: the servo inside
-	colBarOff   = hex(0x9aa5b0) // the LED bar, unlit: a light guide a little darker grey than the shell, bluish (the owner's photos)
+	colBarOff   = hex(0x9bbec4) // the LED bar, unlit: a light guide a little darker than the shell, pale teal (M5Stack's product photos of the side and the top; the owner's photos: bluish)
 	colRing     = hex(0xc9573e) // the camera's red ring under the screen (the owner's photos)
 	colLens     = hex(0x3a4c56) // the camera's lens
 	colSensor   = hex(0x2a2c31) // the light and proximity sensor's two windows: dark (the owner's photos)
@@ -30,6 +30,12 @@ var (
 	colPortTeal = hex(0x2a9da5) // port C (UART) on the head's top
 	colPlate    = hex(0x7d8087) // the base: dark grey (the owner's photos; it renders darker)
 	colDisc     = hex(0xc9ccd0)
+	// The body's back (M5Stack's product photos of the back): the servo body light grey with a
+	// white band at its foot, the back cover over the battery mid grey, the battery blue.
+	colServoCover = hex(0x6c6e71)
+	colBattery    = hex(0x1f7fc4)
+	colScrew      = hex(0xb4b7bb) // the band's two hex screws
+	colBackLed    = hex(0xc0341a) // the body's red LED between them (unlit: its red lens)
 )
 
 // lights: a key light from the upper left front, a fill from the right, a soft one from behind,
@@ -58,7 +64,7 @@ type scene struct {
 
 // core shades the CoreS3 (p, n in the robot's rest space): the glass front with the screen, the
 // red ring and the sensors' dots; vents on the robot's left (+X), the power button, USB-C and the
-// Grove port on its right (sizes from M5Stack's drawing).
+// Grove port on its right (places and sizes from M5Stack's drawing and product photos of that side).
 func (s *scene) core(p, n V3) surface {
 	sf := surface{albedo: colShell, spec: 0.18, shine: 24}
 	p = p.Sub(coreCentre)
@@ -121,18 +127,22 @@ func (s *scene) core(p, n V3) surface {
 		if p.X < -13.4 {
 			sf.albedo = hex(0x9a9ca0)
 		}
-	case n.X < -0.97: // right: the power button, USB-C, the Grove port
-		const cz = 0.4
-		if d := roundRect(p.Z-cz, p.Y-14, 3, 2.6, 1.2); d <= 0 {
-			sf.albedo = colShell.mul(0.9)
-			if d > -0.35 {
-				sf.albedo = colShell.mul(0.6)
+	case n.X < -0.97: // right, from the top: the power sign, the power button, USB-C, the Grove port
+		// The power button: wider (front to back) than high, in the upper third, a little behind
+		// the side's middle; its key in a black ring (M5Stack's drawing: 9.9 x 7.5 outside).
+		if d := roundRect(p.Z+0.6, p.Y-12.9, 4.95, 3.75, 2.2); d <= 0 {
+			sf.albedo, sf.spec = colPortDark, 0.25
+			if d < -0.75 {
+				sf.albedo, sf.spec = colShell.mul(0.9), 0.18
 			}
 		}
-		if roundRect(p.Z-cz, p.Y+0.7, 1.5, 4.4, 1.4) <= 0 {
+		if powerSign(p.Z+0.2, p.Y-19.2) {
+			sf.albedo = colShell.mul(0.62)
+		}
+		if roundRect(p.Z+0.4, p.Y, 1.8, 4.65, 1.8) <= 0 {
 			sf.albedo, sf.spec = colPortDark, 0.2
 		}
-		if d := roundRect(p.Z-cz, p.Y+13.5, 2.5, 4, 0.4); d <= 0 {
+		if d := roundRect(p.Z+1.2, p.Y+14.1, 2.65, 5.25, 0.4); d <= 0 {
 			sf.albedo = hex(0xa83a3c)
 			if d < -0.8 {
 				sf.albedo = hex(0x3a1416)
@@ -283,6 +293,62 @@ func (s *scene) barGlow(z, y float64, left bool, sf *surface) {
 	}
 }
 
+// powerSign is the power symbol above the power button (u across, v up from its centre): a ring
+// open at the top and a bar through the gap, about 2 mm across.
+func powerSign(u, v float64) bool {
+	r := math.Hypot(u, v)
+	ring := r > 0.72 && r < 1.0 && !(v > 0.3 && math.Abs(u) < 0.5)
+	bar := math.Abs(u) < 0.13 && v > -0.1 && v < 1.15
+	return ring || bar
+}
+
+// lower shades the servo body, its back cover and the stand (p, n at rest), from their material:
+// at the back the white band's two hex screws and the red LED between them, and the stand's
+// USB-C (M5Stack's drawing and product photos of the back).
+func lower(p, n V3, mat int) surface {
+	sf := material(mat)
+	switch mat {
+	case matServo, matServoCover:
+		if p.Z > -5 {
+			break
+		}
+		for _, sx := range []float64{-screwX, screwX} {
+			u, v := p.X-sx, p.Y-screwY
+			switch d := math.Hypot(u, v); {
+			case d < 0.75 && hexagon(u, v, 0.65):
+				sf.albedo, sf.spec = colPortDark, 0.1 // the hex socket
+			case d < 1.55:
+				sf.albedo, sf.spec, sf.shine = colScrew, 0.6, 50
+			case d < 1.95:
+				sf.albedo, sf.spec = colPortDark.lerp(colDisc, 0.3), 0.1 // the gap round its head
+			}
+		}
+		if mat == matServo && box(p.X, p.Y, backLedX-0.75, backLedY-1.5, backLedX+0.75, backLedY+1.5) {
+			sf.albedo, sf.spec, sf.shine = colBackLed, 0.5, 40
+		}
+	case matPlate:
+		if p.Z > -11 || n.Y > 0.5 { // the back and the opening, not the plate's top
+			break
+		}
+		if d := roundRect(p.X-standUsbX, p.Y-standUsbY, standUsbW/2, standUsbH/2, standUsbH/2); d <= 0 {
+			sf.albedo, sf.spec = colPortDark, 0.2
+			switch {
+			case d > -0.45:
+				sf.albedo, sf.spec, sf.shine = hex(0xa9adb2), 0.6, 50 // its metal shell
+			case math.Abs(p.Y-standUsbY) < 0.35 && math.Abs(p.X-standUsbX) < 3.3 && p.Z < -19:
+				sf.albedo = hex(0x3c3e42) // its tongue
+			}
+		}
+	}
+	return sf
+}
+
+// hexagon: (u, v) inside a regular hexagon of circumradius r, flat at the top and bottom.
+func hexagon(u, v, r float64) bool {
+	u, v = math.Abs(u), math.Abs(v)
+	return v <= r*math.Sqrt(3)/2 && u*math.Sqrt(3)/2+v/2 <= r*math.Sqrt(3)/2
+}
+
 func box(x, y, x0, y0, x1, y1 float64) bool { return x >= x0 && x <= x1 && y >= y0 && y <= y1 }
 
 // roundRect is the signed distance to a rectangle of half sizes hx, hy with corners rounded by r.
@@ -337,7 +403,9 @@ func material(mat int) surface {
 	case matServo:
 		return surface{albedo: colDisc, spec: 0.25, shine: 30}
 	case matServoCover:
-		return surface{albedo: colServo, spec: 0.15, shine: 20}
+		return surface{albedo: colServoCover, spec: 0.15, shine: 20}
+	case matBattery:
+		return surface{albedo: colBattery, spec: 0.3, shine: 30}
 	case matPitchServo:
 		return surface{albedo: colServo, spec: 0.2, shine: 30} // as the servo body around it: nothing black shows at the back (the owner's photo)
 	}

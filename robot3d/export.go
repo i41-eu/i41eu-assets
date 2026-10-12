@@ -5,7 +5,7 @@ import "image/color"
 // Part is a piece of the model at rest (yaw 0, pitch 0) in the robot's space (millimetres, Y up,
 // facing +Z, the yaw axis through x = 0, z = 0), for other renderers (e.g. glTF for a browser).
 type Part struct {
-	Name  string     // plate, servo, servo-cover, pitch-servo, body, led-bar-left, led-bar-right, led-board-left, led-board-right, led-chips-left, led-chips-right, top-board, base-cover, core
+	Name  string     // plate, servo, servo-cover, pitch-servo, battery, body, led-bar-left, led-bar-right, led-board-left, led-board-right, led-chips-left, led-chips-right, top-board, base-cover, core
 	Joint string     // what moves it: "base" (nothing), "yaw" (turns about the yaw axis), "head" (yaw, then pitch about PitchPivot)
 	Color color.RGBA // its base colour (details such as the screen, ports and labels are drawn, not modelled)
 	// Triangles, three positions each, and a normal per position.
@@ -30,10 +30,12 @@ func Parts() []Part {
 		{partPlate, matPlate}: "plate", {partServo, matServo}: "servo", {partServo, matServoCover}: "servo-cover",
 		{partBody, matBody}: "body", {partCore, matCore}: "core",
 		{partServo, matPitchServo}: "pitch-servo", {partBody, matTopBoard}: "top-board", {partPlate, matBaseCover}: "base-cover",
+		{partServo, matBattery}: "battery",
 	}
 	joints := map[int]string{partPlate: "base", partServo: "yaw", partBody: "head", partCore: "head"}
-	colours := map[int]rgb{matPlate: colPlate, matServo: colDisc, matServoCover: colServo, matBody: colShell,
-		matBar: colBarOff, matCore: colShell, matPitchServo: colServo, matTopBoard: colShell, matBaseCover: colPlate, matLedBoard: hex(0xe9e9e2), matLedChip: hex(0xf2f2ee)}
+	colours := map[int]rgb{matPlate: colPlate, matServo: colDisc, matBody: colShell,
+		matBar: colBarOff, matCore: colShell, matPitchServo: colServo, matTopBoard: colShell, matBaseCover: colPlate, matLedBoard: hex(0xe9e9e2), matLedChip: hex(0xf2f2ee),
+		matServoCover: colServoCover, matBattery: colBattery}
 	byName := map[string]*Part{}
 	var order []string
 	for _, t := range mesh() {
@@ -70,8 +72,9 @@ func Parts() []Part {
 // Surface is how a part looks at a point at rest (p and n in the robot's rest space, as Parts
 // gives them), before the lights: its base colour with the details the renderer draws (the glass
 // front and the red ring, the sensors' dots, the vents, the ports and buttons, the labels and the
-// back panel's sticker and ports; the screen and the LEDs off), and whether it is glass (shiny,
-// reflecting the room). For textures in other renderers.
+// back panel's sticker and ports; at the body's back its screws, its red LED and the stand's
+// USB-C; the screen and the LEDs off), and whether it is glass (shiny, reflecting the room). For
+// textures in other renderers.
 func Surface(part string, p, n V3) (c color.RGBA, glass bool) {
 	var sc scene
 	var sf surface
@@ -88,14 +91,18 @@ func Surface(part string, p, n V3) (c color.RGBA, glass bool) {
 		sf = sc.body(p, n, matLedChip)
 	case "led-bar-left", "led-bar-right":
 		sf = sc.body(p, n, matBar)
-	case "plate", "base-cover":
-		sf = material(matPlate)
+	case "plate":
+		sf = lower(p, n, matPlate)
+	case "base-cover":
+		sf = material(matBaseCover)
 	case "servo":
-		sf = material(matServo)
+		sf = lower(p, n, matServo)
 	case "servo-cover":
-		sf = material(matServoCover)
+		sf = lower(p, n, matServoCover)
 	case "pitch-servo":
 		sf = material(matPitchServo)
+	case "battery":
+		sf = material(matBattery)
 	default:
 		sf = material(-1)
 	}
