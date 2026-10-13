@@ -54,7 +54,9 @@ pitches about the servo's horn, 24 mm above its bottom, right over the yaw axis.
 All robot pictures in the docs, READMEs and pages come from here, so one change (the model, a
 screen, a pose) refreshes them everywhere:
 
-1. `screens/`: the robot's screens (320x240), e.g. from `i41eu-usb screenshot -o x.jpg`.
+1. `screens/`: the robot's screens (320x240), e.g. from `i41eu-usb screenshot -o x.jpg`. They
+   show no private data, also not in a QR code: `screens/qr.png`'s code is a placeholder pairing
+   address.
 2. `renders.json`: each picture: a still (one screen) or an animation (frames with captions), the
    head's pose, the camera, the LEDs, the size.
 3. `go run ./cmd/robot3d-renders` writes `renders/` (stills PNG, animations GIF); `-only a,b`
