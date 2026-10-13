@@ -93,6 +93,11 @@
    "size": "400x400"
   },
   {
+   "render": "ask-pet",
+   "to": "i41eu-manager:docs/robot3d-ask-pet.png",
+   "size": "400x400"
+  },
+  {
    "render": "raw",
    "to": "firmware:firmware/main/apps/app_embody_mode/screenshots/robot3d-raw.png",
    "size": "400x400"

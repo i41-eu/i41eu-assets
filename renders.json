@@ -90,6 +90,15 @@
    "el": 8
   },
   {
+   "name": "ask-pet",
+   "about": "The robot asks on its screen: Connect to Pet? (asked by m.i41.eu, Yes or No)",
+   "size": "600x600",
+   "screen": "screens/ask-pet.png",
+   "az": -20,
+   "el": 10,
+   "yaw": 10
+  },
+  {
    "name": "one-robot-many-apps",
    "about": "One robot, many apps",
    "size": "420x420",
