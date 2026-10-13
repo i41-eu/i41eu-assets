@@ -24,7 +24,8 @@ type Renders struct {
 	Renders []Render `json:"renders"`
 }
 
-// Render is one picture: a still (Screen) or an animation (Frames).
+// Render is one picture: a still (Screen) or an animation (Frames: one picture each, or with
+// Motion the scenes of a smooth loop).
 type Render struct {
 	Name  string `json:"name"`
 	About string `json:"about,omitempty"`
@@ -33,6 +34,7 @@ type Render struct {
 	Pose
 	Screen string  `json:"screen,omitempty"` // a still's screen
 	Frames []Frame `json:"frames,omitempty"` // an animation's frames
+	Motion *Motion `json:"motion,omitempty"` // the frames as scenes of a smooth loop (motion.go)
 }
 
 // Pose is where the head and the camera are, and the LEDs. In a frame, a field left out keeps
@@ -68,6 +70,9 @@ func Load(path string) (*Renders, error) {
 		seen[x.Name] = true
 		if (x.Screen == "") == (len(x.Frames) == 0) {
 			return nil, fmt.Errorf("%s: %s: a screen (a still) or frames (an animation)", path, x.Name)
+		}
+		if x.Motion != nil && len(x.Frames) == 0 {
+			return nil, fmt.Errorf("%s: %s: a motion plays frames", path, x.Name)
 		}
 	}
 	return &r, nil
@@ -105,6 +110,9 @@ func (r Render) Make(base string) ([]byte, error) {
 			return nil, err
 		}
 		return buf.Bytes(), nil
+	}
+	if r.Motion != nil {
+		return r.motion(base, w, h)
 	}
 	return r.animation(base, w, h)
 }
@@ -149,7 +157,7 @@ func (r Render) animation(base string, w, h int) ([]byte, error) {
 		}
 		delays = append(delays, ms/10)
 	}
-	pal := medianCut(frames, 256)
+	pal := medianCut(samples(frames), 256)
 	anim := &gif.GIF{LoopCount: 0}
 	for i, img := range frames {
 		p := image.NewPaletted(img.Bounds(), pal)
@@ -214,9 +222,8 @@ func readJSON(path string, v any) error {
 	return nil
 }
 
-// medianCut picks a palette of n colours for the frames: boxes of colours split at the median
-// of their widest channel, the biggest first.
-func medianCut(frames []*image.RGBA, n int) color.Palette {
+// samples are up to 150000 pixels of each frame, for the palette.
+func samples(frames []*image.RGBA) [][3]uint8 {
 	var px [][3]uint8
 	for _, img := range frames {
 		step := max(1, len(img.Pix)/4/150000)
@@ -224,6 +231,12 @@ func medianCut(frames []*image.RGBA, n int) color.Palette {
 			px = append(px, [3]uint8{img.Pix[i], img.Pix[i+1], img.Pix[i+2]})
 		}
 	}
+	return px
+}
+
+// medianCut picks a palette of n colours for the pixels: boxes of colours split at the median
+// of their widest channel, the biggest first.
+func medianCut(px [][3]uint8, n int) color.Palette {
 	boxes := [][][3]uint8{px}
 	widest := func(b [][3]uint8) (int, int) {
 		ch, rng := 0, -1

@@ -1,6 +1,7 @@
 // Command robot3d-renders renders the robot pictures listed in renders.json into renders/:
-// stills as PNG (transparent unless a bg is set), animations as GIF. Run it from the repository's
-// root after changing the model, a screen or the list; the same inputs give the same bytes.
+// stills as PNG (transparent unless a bg is set), animations as GIF (a motion, one smooth loop,
+// transparent unless a bg is set too). Run it from the repository's root after changing the
+// model, a screen or the list; the same inputs give the same bytes.
 //
 //	go run ./cmd/robot3d-renders                 # all of them
 //	go run ./cmd/robot3d-renders -only pet,qr    # some

@@ -64,7 +64,12 @@ screen, a pose) refreshes them everywhere:
    show no private data, also not in a QR code: `screens/qr.png`'s code is a placeholder pairing
    address.
 2. `renders.json`: each picture: a still (one screen) or an animation (frames with captions), the
-   head's pose, the camera, the LEDs, the size.
+   head's pose, the camera, the LEDs, the size. With `motion` an animation's frames are the scenes
+   of one smooth loop, `fps` frames a second: the head eases into each scene's pose (`ease_ms`),
+   the screen and the LEDs crossfade (`fade_ms`), `sway` adds sine waves over the loop (the camera
+   swinging round the robot, the head moving a little), `crop` trims to the robot; a GIF,
+   transparent round the robot unless a `bg` is set, `colors` and `max_kb` keep it small. E.g.
+   `embody-robot`, the firmware README's robot.
 3. `go run ./cmd/robot3d-renders` writes `renders/` (stills PNG, animations GIF); `-only a,b`
    for some, `-check` fails if `renders/` is out of date. The same inputs give the same bytes.
 4. `distribute.json`: where each picture goes (`repo:path`; the extension picks PNG, JPEG or GIF,
