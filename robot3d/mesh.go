@@ -26,7 +26,7 @@ const (
 	// The servo body's foot rests on the plate's ring round the turntable (its top at 11.1; the
 	// plate itself is 8 high): M5Stack's drawing and product photos of the back put its screws,
 	// its LED window and its back cover there, and its horn at the main body's pitch boss (y 43.5).
-	servoBottom = 11.2
+	servoBottom = 11.1
 	pitchAxisY  = servoBottom + 32.3
 )
 
@@ -61,12 +61,17 @@ const (
 	matBattery    // the 550 mAh battery behind the servo body's back cover (blue)
 )
 
-// The pitch servo, drawn (M5Stack's files leave the servos out): the pocket the servo body
-// leaves on the robot's left, round the pitch axis, between its side and the main body's boss.
+// The pitch servo, drawn (M5Stack's files leave the servos out): its horn, dark, in the pocket the
+// servo body leaves on the robot's left, round the pitch axis, between its side and the main
+// body's boss; its body, light grey, in the pocket the servo body leaves open under the head's
+// board, up to y 49.5 (M5Stack's drawing and product photos of the back: TTL SERVO).
 const (
 	pitchServoX0, pitchServoX1 = 11.0, 22.0
 	pitchServoY0, pitchServoY1 = servoBottom + 27.5, servoBottom + 39.0
 	pitchServoZ0, pitchServoZ1 = -17.0, 10.0
+	pitchBodyX0                = -15.8
+	pitchBodyY0, pitchBodyY1   = servoBottom + 33.0, servoBottom + 38.4
+	pitchBodyZ0, pitchBodyZ1   = -22.0, 2.0
 )
 
 // The back of the servo body (M5Stack's drawing and product photos of the back). The battery,
@@ -148,6 +153,8 @@ func mesh() []tri {
 		add(roundedBoxBack(V3{27, 27, (coreD + coreOverLip) / 2}, coreR, coreBackR, 6, partCore, matCore), coreCentre.Add(V3{0, 0, -coreOverLip / 2}))
 		add(roundedBox(V3{(pitchServoX1 - pitchServoX0) / 2, (pitchServoY1 - pitchServoY0) / 2, (pitchServoZ1 - pitchServoZ0) / 2}, 0.8, 2, partServo, matPitchServo),
 			V3{(pitchServoX0 + pitchServoX1) / 2, (pitchServoY0 + pitchServoY1) / 2, (pitchServoZ0 + pitchServoZ1) / 2})
+		add(roundedBox(V3{(pitchServoX0 - pitchBodyX0) / 2, (pitchBodyY1 - pitchBodyY0) / 2, (pitchBodyZ1 - pitchBodyZ0) / 2}, 0.6, 2, partServo, matPitchServo),
+			V3{(pitchBodyX0 + pitchServoX0) / 2, (pitchBodyY0 + pitchBodyY1) / 2, (pitchBodyZ0 + pitchBodyZ1) / 2})
 		add(roundedBox(V3{batteryX, (batteryY1 - batteryY0) / 2, (batteryZ1 - batteryZ0) / 2}, 0.8, 2, partServo, matBattery),
 			V3{0, (batteryY0 + batteryY1) / 2, (batteryZ0 + batteryZ1) / 2})
 		// The red LED in the servo body's back window and the USB-C receptacle in the stand's back

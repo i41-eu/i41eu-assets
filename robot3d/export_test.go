@@ -94,8 +94,11 @@ func TestServoOnPlate(t *testing.T) {
 	if foot < ring {
 		t.Errorf("the servo body's foot at y %.2f, in the plate (up to %.2f)", foot, ring)
 	}
-	if math.Abs(pivot.Y-43.5) > 0.05 {
-		t.Errorf("the pitch axis at y %.2f, the main body's boss at 43.5", pivot.Y)
+	if foot > ring+0.01 {
+		t.Errorf("the servo body's foot at y %.2f, above the plate's ring (%.2f): a slit between them", foot, ring)
+	}
+	if math.Abs(pivot.Y-43.5) > 0.15 {
+		t.Errorf("the pitch axis at y %.2f, the main body's boss at 43.5 (the drawing: 43.4)", pivot.Y)
 	}
 }
 

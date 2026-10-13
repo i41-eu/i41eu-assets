@@ -100,7 +100,7 @@ func Surface(part string, p, n V3) (c color.RGBA, glass bool) {
 	case "servo-cover":
 		sf = lower(p, n, matServoCover)
 	case "pitch-servo":
-		sf = material(matPitchServo)
+		sf = lower(p, n, matPitchServo)
 	case "battery":
 		sf = material(matBattery)
 	default:

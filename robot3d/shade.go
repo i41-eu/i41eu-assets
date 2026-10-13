@@ -302,9 +302,10 @@ func powerSign(u, v float64) bool {
 	return ring || bar
 }
 
-// lower shades the servo body, its back cover and the stand (p, n at rest), from their material:
-// at the back the white band's two hex screws and the red LED between them, and the stand's
-// USB-C (M5Stack's drawing and product photos of the back).
+// lower shades the servo body, its back cover, the pitch servo and the stand (p, n at rest), from
+// their material: at the back the white band's two hex screws and the red LED between them, the
+// pitch servo's light grey body and dark horn, and the stand's USB-C (M5Stack's drawing and
+// product photos of the back).
 func lower(p, n V3, mat int) surface {
 	sf := material(mat)
 	switch mat {
@@ -325,6 +326,10 @@ func lower(p, n V3, mat int) surface {
 		}
 		if mat == matServo && box(p.X, p.Y, backLedX-0.75, backLedY-1.5, backLedX+0.75, backLedY+1.5) {
 			sf.albedo, sf.spec, sf.shine = colBackLed, 0.5, 40
+		}
+	case matPitchServo: // its body light grey (M5Stack's TTL servo), its horn on the left dark
+		if p.X < pitchServoX0-0.05 {
+			sf.albedo = colDisc
 		}
 	case matPlate:
 		if p.Z > -11 || n.Y > 0.5 { // the back and the opening, not the plate's top

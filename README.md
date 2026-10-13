@@ -47,8 +47,9 @@ the screen (40.8 x 30.6) in its black glass front, the red ring and the sensors'
 left, the power button (in its black ring, the power sign above it), USB-C and Grove port on the
 right; the light guides of the LEDs in the slots through the head's rounded top edges (pale teal
 when off), the labels (without text), the upper
-back's panel (down to 29 mm below the top) and the black pitch servo in the servo body's pocket on
-the left (M5Stack's files leave the servos out; sized by the pocket and a photo of the back); at
+back's panel (down to 29 mm below the top) and the pitch servo, its light grey body in the servo
+body's pocket under the head's board and its dark horn on the left (M5Stack's files leave the
+servos out; sized by the pockets, the drawing and the photos of the back); at
 the body's back the mid grey cover, the blue battery through its cutout, the two screws and the red
 LED in the band below it, and the stand's USB-C (M5Stack's drawing and product photos of the back).
 The head pitches about the servo's horn at the main body's boss, 27 mm above its bottom, right over
