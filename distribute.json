@@ -2,7 +2,7 @@
  "repos": {
   "i41eu-web": "../i41eu-web",
   "i41eu-arch": "../i41eu-arch",
-  "mj-ofun": "../mj-ofun",
+  "mj-ofun": "../../mj-ofun",
   "q41eu-pet": "../q41eu-pet",
   "q41eu-raw": "../q41eu-raw",
   "q41eu-focus": "../q41eu-focus",
