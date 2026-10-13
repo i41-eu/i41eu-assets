@@ -82,10 +82,16 @@ const (
 	standUsbW, standUsbH = 8.9, 3.2
 )
 
-// The LED bars' slot (one each side, at the top).
+// The LED bars (one each side, at the top): a light guide in the slot M5Stack's main body cuts
+// through its rounded top edge (radius edgeR about x ±edgeCX, y edgeCY), across the edge's
+// diagonal at 45°, guideHalf either side of it, its ends round: flush with the edge, so the light
+// shows about 1.7 mm high on the side and 1.7 mm wide on the top (M5Stack's drawing and product
+// photos), the shell's round going on above and below it.
 const (
-	barZ0, barZ1 = -16.3, 13.0
-	barY0, barY1 = robotH - 4.4, robotH - 0.15 // the light guide fills the main body's notch along its top edge (y 67 up)
+	barZ0, barZ1          = -16.1, 13.1
+	edgeR, edgeCX, edgeCY = 5.0, 22.03, 65.5
+	guideHalf, guideDepth = 1.16, 2.6
+	barY0, barY1          = 68.1, robotH // where the guide shows on the side (its lower lip), up to the top
 	// The LEDs' board stands inside the side, between its three holes and the top, against the
 	// light guide's inner face; its six chips on its inner side, one under each sixth of the guide
 	// (the owner's photo of the inside through the open back, 2026-10-12).
@@ -93,7 +99,6 @@ const (
 	ledBoardY0, ledBoardY1 = 62.5, 68.6
 	ledChipY, ledChipHalf  = 64.8, 1.0
 	ledChipD               = 0.9
-	barX0, barX1           = 22.8, 27.0 // (x 24.6 out), round at its outer corner, as M5Stack's light guide is
 	// The top board fills the opening M5Stack's main body leaves in its top behind the CoreS3
 	// (M5Stack's annotated picture of the robot: touch pads x 3, IR Tx / Rx, GPIO port B, UART port C).
 	topBoardX              = 21.0
@@ -150,8 +155,7 @@ func mesh() []tri {
 		add(roundedBox(V3{0.75, 1.5, 0.75}, 0.2, 1, partServo, matServo), V3{backLedX, backLedY, -22.4})
 		add(roundedBox(V3{standUsbW / 2, standUsbH / 2, 3.5}, 1.4, 2, partPlate, matPlate), V3{standUsbX, standUsbY, -23.3 + 3.5})
 		for _, sx := range []float64{-1, 1} {
-			add(roundedBox(V3{(barX1 - barX0) / 2, (barY1 - barY0) / 2, (barZ1 - barZ0) / 2}, 2.0, 3, partBody, matBar),
-				V3{sx * (barX0 + barX1) / 2, (barY0 + barY1) / 2, (barZ0 + barZ1) / 2})
+			m = append(m, lightGuide(sx, partBody, matBar)...)
 			add(roundedBox(V3{(ledBoardX1 - ledBoardX0) / 2, (ledBoardY1 - ledBoardY0) / 2, (barZ1 - barZ0) / 2}, 0.1, 1, partBody, matLedBoard),
 				V3{sx * (ledBoardX0 + ledBoardX1) / 2, (ledBoardY0 + ledBoardY1) / 2, (barZ0 + barZ1) / 2})
 			for k := 0; k < 6; k++ {
@@ -171,6 +175,65 @@ func mesh() []tri {
 		meshTris = m
 	})
 	return meshTris
+}
+
+// lightGuide is the LED bar on side sx (+1: +X) in M5Stack's slot through the main body's
+// rounded top edge: its outer face on the edge's round, its sides on the slot's walls, its inside
+// guideDepth in, its ends round as the slot's (half circles of guideHalf).
+func lightGuide(sx float64, part, mat int) []tri {
+	a := V3{sx * math.Sqrt2 / 2, math.Sqrt2 / 2, 0}  // the edge's diagonal, outward
+	t := V3{-sx * math.Sqrt2 / 2, math.Sqrt2 / 2, 0} // across the slot, toward the top
+	c := V3{sx * edgeCX, edgeCY, 0}
+	zz := V3{0, 0, 1}
+	// Stations along the bar: its half width there, and its sides' normal (along z, across).
+	type station struct{ z, hw, nz, nt float64 }
+	var st []station
+	const n = 6 // steps round each end
+	h := guideHalf
+	for k := 0; k <= n; k++ { // the back end
+		b := float64(k) * math.Pi / 2 / n
+		st = append(st, station{barZ0 + h - h*math.Cos(b), h * math.Sin(b), -math.Cos(b), math.Sin(b)})
+	}
+	for k := n; k >= 0; k-- { // the front end
+		b := float64(k) * math.Pi / 2 / n
+		st = append(st, station{barZ1 - h + h*math.Cos(b), h * math.Sin(b), math.Cos(b), math.Sin(b)})
+	}
+	across := []float64{-1, -0.5, 0, 0.5, 1}
+	outer := func(s station, u float64) vert { // on the edge's round
+		phi := math.Asin(u / edgeR)
+		d := a.Mul(math.Cos(phi)).Add(t.Mul(math.Sin(phi)))
+		return vert{c.Add(d.Mul(edgeR)).Add(zz.Mul(s.z)), d}
+	}
+	inner := func(s station, u float64) V3 { return c.Add(a.Mul(edgeR - guideDepth)).Add(t.Mul(u)).Add(zz.Mul(s.z)) }
+	in := a.Mul(-1)
+	var out []tri
+	for i := 0; i+1 < len(st); i++ {
+		s0, s1 := st[i], st[i+1]
+		for j := 0; j+1 < len(across); j++ {
+			u00, u01, u10, u11 := across[j]*s0.hw, across[j+1]*s0.hw, across[j]*s1.hw, across[j+1]*s1.hw
+			out = append(out, quad(outer(s0, u00), outer(s0, u01), outer(s1, u11), outer(s1, u10), part, mat)...)
+			out = append(out, quad(vert{inner(s0, u00), in}, vert{inner(s1, u10), in}, vert{inner(s1, u11), in}, vert{inner(s0, u01), in}, part, mat)...)
+		}
+		for _, side := range []float64{-1, 1} {
+			n0, n1 := t.Mul(side*s0.nt).Add(zz.Mul(s0.nz)), t.Mul(side*s1.nt).Add(zz.Mul(s1.nz))
+			out = append(out, quad(vert{outer(s0, side*s0.hw).p, n0}, vert{outer(s1, side*s1.hw).p, n1},
+				vert{inner(s1, side*s1.hw), n1}, vert{inner(s0, side*s0.hw), n0}, part, mat)...)
+		}
+	}
+	// Only real triangles (the round ends close to a point), wound counter-clockwise seen from
+	// the side their normals point to.
+	keep := out[:0]
+	for _, tr := range out {
+		f := tr.v[1].p.Sub(tr.v[0].p).Cross(tr.v[2].p.Sub(tr.v[0].p))
+		if f.Len() < 1e-9 {
+			continue
+		}
+		if f.Dot(tr.v[0].n.Add(tr.v[1].n).Add(tr.v[2].n)) < 0 {
+			tr.v[1], tr.v[2] = tr.v[2], tr.v[1]
+		}
+		keep = append(keep, tr)
+	}
+	return keep
 }
 
 // ledZ is the middle of the k-th sixth of a light guide, 0 at the front: where its LED's light is

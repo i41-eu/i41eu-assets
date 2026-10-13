@@ -3,6 +3,7 @@ package robot3d
 import (
 	"image/color"
 	"math"
+	"strings"
 	"testing"
 )
 
@@ -112,5 +113,60 @@ func TestPartsWound(t *testing.T) {
 		if inward > 0 {
 			t.Errorf("%s: %d of %d triangles wound against their normals", p.Name, inward, len(p.Positions)/3)
 		}
+	}
+}
+
+// The LED bars follow the head's rounded top edge (M5Stack's main body: radius 5 mm), as the
+// light guides on M5Stack's product photos do: nothing of them stands out of that round, and the
+// light shows in the slot through it, about 1.7 mm high on the side and 1.7 mm wide on the top
+// (the drawing: y 67.9 to 69.9 on the side; the top photo: x 24.8 to 26.1).
+func TestLightGuideFlush(t *testing.T) {
+	var all []V3 // triangles, three points each, with their part
+	var names []string
+	for _, p := range Parts() {
+		for i, v := range p.Positions {
+			all = append(all, v)
+			if i%3 == 0 {
+				names = append(names, p.Name)
+			}
+			if strings.HasPrefix(p.Name, "led-bar-") {
+				if r := math.Hypot(math.Abs(v.X)-edgeCX, v.Y-edgeCY); r > edgeR+1e-6 && v.Y > edgeCY {
+					t.Fatalf("%s: a point %.2f mm out of the head's rounded edge at %+v", p.Name, r-edgeR, v)
+				}
+			}
+		}
+	}
+	first := func(o, d V3) string { // the part a ray from o along d meets first
+		best, part := math.Inf(1), ""
+		for i := 0; i+2 < len(all); i += 3 {
+			e1, e2 := all[i+1].Sub(all[i]), all[i+2].Sub(all[i])
+			p := d.Cross(e2)
+			det := e1.Dot(p)
+			if math.Abs(det) < 1e-12 {
+				continue
+			}
+			s := o.Sub(all[i])
+			u, q := s.Dot(p)/det, s.Cross(e1)
+			v := d.Dot(q) / det
+			if dist := e2.Dot(q) / det; u >= 0 && v >= 0 && u+v <= 1 && dist > 0 && dist < best {
+				best, part = dist, names[i/3]
+			}
+		}
+		return part
+	}
+	span := func(o func(s float64) V3, d V3, from, to float64) (lo, hi float64) {
+		lo, hi = math.Inf(1), math.Inf(-1)
+		for s := from; s <= to; s += 0.05 {
+			if first(o(s), d) == "led-bar-right" {
+				lo, hi = math.Min(lo, s), math.Max(hi, s)
+			}
+		}
+		return
+	}
+	if lo, hi := span(func(y float64) V3 { return V3{40, y, -1.5} }, V3{-1, 0, 0}, 64, 71); lo < 67.8 || hi > 70.1 || hi-lo < 1.4 || hi-lo > 2.2 {
+		t.Errorf("from the side the light shows from y %.2f to %.2f, want about 68.1 to 69.8", lo, hi)
+	}
+	if lo, hi := span(func(x float64) V3 { return V3{x, 90, -1.5} }, V3{0, -1, 0}, 20, 28); lo < 24.3 || hi > 26.8 || hi-lo < 1.4 || hi-lo > 2.2 {
+		t.Errorf("from above the light shows from x %.2f to %.2f, want about 24.6 to 26.3", lo, hi)
 	}
 }

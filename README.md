@@ -45,7 +45,8 @@ with the turntable, its back cover and its top cover (inside the head), placed b
 body's foot on the plate's ring round the turntable). Drawn here: the CoreS3 (54 x 54 x 15.5) with
 the screen (40.8 x 30.6) in its black glass front, the red ring and the sensors' dots, vents on the
 left, the power button (in its black ring, the power sign above it), USB-C and Grove port on the
-right; the light guide bars of the LEDs (pale teal when off), the labels (without text), the upper
+right; the light guides of the LEDs in the slots through the head's rounded top edges (pale teal
+when off), the labels (without text), the upper
 back's panel (down to 29 mm below the top) and the black pitch servo in the servo body's pocket on
 the left (M5Stack's files leave the servos out; sized by the pocket and a photo of the back); at
 the body's back the mid grey cover, the blue battery through its cutout, the two screws and the red
