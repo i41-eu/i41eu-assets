@@ -103,6 +103,10 @@
    "size": "400x400"
   },
   {
+   "render": "embody-robot",
+   "to": "firmware:docs/img/embody-robot.gif"
+  },
+  {
    "screen": "launcher.png",
    "to": "s3d:web/screens/launcher.png"
   },

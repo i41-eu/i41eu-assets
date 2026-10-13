@@ -237,6 +237,88 @@
     }
    ],
    "zoom": 1.25
+  },
+  {
+   "name": "embody-robot",
+   "about": "The firmware's README: the robot sways slowly and moves its head while its screen goes through Embody Mode's apps (the launcher, a face, Raw data's readings, the pet, Focus, Dev), its LEDs following each app; transparent round the robot",
+   "size": "360x360",
+   "el": 10,
+   "frames": [
+    {
+     "screen": "screens/launcher.png",
+     "ms": 1300,
+     "yaw": 0,
+     "pitch": 10
+    },
+    {
+     "screen": "screens/raw-face.png",
+     "ms": 1200,
+     "yaw": 10,
+     "pitch": 16,
+     "leds": "#3c78ff*12"
+    },
+    {
+     "screen": "screens/raw-readings.png",
+     "ms": 1200,
+     "yaw": -8,
+     "pitch": 10,
+     "leds": "#030cb2,#030cb2,#030cb2,#0074b2,#0074b2,#06b210,#06b210,#0074b2,#0074b2,#030cb2,#030cb2,#030cb2"
+    },
+    {
+     "screen": "screens/pet-happy.png",
+     "ms": 1100,
+     "yaw": 10,
+     "pitch": 18,
+     "leds": "#ffb347*12"
+    },
+    {
+     "screen": "screens/pet-yum.png",
+     "ms": 1000,
+     "yaw": -6,
+     "pitch": 16,
+     "leds": "#ffb347*12"
+    },
+    {
+     "screen": "screens/focus.png",
+     "ms": 1200,
+     "yaw": 0,
+     "pitch": 8,
+     "leds": "#e5533d,#e5533d,#e5533d,#e5533d,,,,,#e5533d,#e5533d,#e5533d,#e5533d"
+    },
+    {
+     "screen": "screens/dev-build.png",
+     "ms": 1200,
+     "yaw": 12,
+     "pitch": 14,
+     "leds": "#06b310*12"
+    }
+   ],
+   "motion": {
+    "fps": 12.5,
+    "start_ms": 450,
+    "ease_ms": 600,
+    "fade_ms": 220,
+    "sway": [
+     {
+      "of": "az",
+      "deg": 26,
+      "cycles": 1
+     },
+     {
+      "of": "yaw",
+      "deg": 2,
+      "cycles": 3
+     },
+     {
+      "of": "pitch",
+      "deg": 1.5,
+      "cycles": 5
+     }
+    ],
+    "crop": 16,
+    "colors": 128,
+    "max_kb": 1536
+   }
   }
  ]
 }
