@@ -130,6 +130,31 @@
   {
    "screen": "dev-build.png",
    "to": "s3d:web/screens/dev-build.png"
+  },
+  {
+   "render": "mini-happy",
+   "to": "i41eu-web:s/mini-happy.png",
+   "size": "200x200"
+  },
+  {
+   "render": "mini-angry",
+   "to": "i41eu-web:s/mini-angry.png",
+   "size": "200x200"
+  },
+  {
+   "render": "mini-sad",
+   "to": "i41eu-web:s/mini-sad.png",
+   "size": "200x200"
+  },
+  {
+   "render": "mini-sleepy",
+   "to": "i41eu-web:s/mini-sleepy.png",
+   "size": "200x200"
+  },
+  {
+   "render": "mini-doubt",
+   "to": "i41eu-web:s/mini-doubt.png",
+   "size": "200x200"
   }
  ]
 }

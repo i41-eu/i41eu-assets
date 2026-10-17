@@ -328,6 +328,54 @@
     "colors": 128,
     "max_kb": 1536
    }
+  },
+  {
+   "name": "mini-happy",
+   "about": "A tiny robot showing the happy face, for the apps page",
+   "size": "300x300",
+   "screen": "screens/emotion-happy.png",
+   "az": -30,
+   "el": 8,
+   "leds": "#ffb347*12"
+  },
+  {
+   "name": "mini-angry",
+   "about": "A tiny robot showing the angry face, for the apps page",
+   "size": "300x300",
+   "screen": "screens/emotion-angry.png",
+   "az": 14,
+   "el": 12,
+   "yaw": 6,
+   "leds": "#e5533d*12"
+  },
+  {
+   "name": "mini-sad",
+   "about": "A tiny robot showing the sad face, for the apps page",
+   "size": "300x300",
+   "screen": "screens/emotion-sad.png",
+   "az": -10,
+   "el": 6,
+   "yaw": -8,
+   "leds": "#0074b2*12"
+  },
+  {
+   "name": "mini-sleepy",
+   "about": "A tiny robot showing the sleepy face, for the apps page",
+   "size": "300x300",
+   "screen": "screens/emotion-sleepy.png",
+   "az": 24,
+   "el": 10,
+   "leds": "#6b4fd8,#6b4fd8,,,,,,,,,#6b4fd8,#6b4fd8"
+  },
+  {
+   "name": "mini-doubt",
+   "about": "A tiny robot showing the doubt face, for the apps page",
+   "size": "300x300",
+   "screen": "screens/emotion-doubt.png",
+   "az": -20,
+   "el": 14,
+   "yaw": 10,
+   "leds": "#2ead6b*12"
   }
  ]
 }
